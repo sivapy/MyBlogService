@@ -1,5 +1,6 @@
 eclipse.preferences.version=1
 encoding//src/services/admin.py=utf-8
+encoding//src/services/apps.py=utf-8
 encoding//src/services/models.py=utf-8
 encoding//src/services/tests.py=utf-8
 encoding//src/services/views.py=utf-8
