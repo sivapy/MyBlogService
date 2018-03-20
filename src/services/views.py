@@ -11,11 +11,11 @@ def authenticateUser(request):
     return json.dumps(request.user.__dict__, default=str)
 
 @jsonrpc_method('createUser')
-def createUser(request,username,email,password,last_name):
+def createUser(request,firstname, lastname, username, email, password):
     try:
         u = User.objects.create_user(username, email, password)
-        u.first_name=username
-        u.last_name=last_name
+        u.first_name=firstname
+        u.last_name=lastname
         u.save()
     except:
         raise IntegrityError
@@ -34,14 +34,28 @@ def getBlogs(request, username):
     return [json.dumps(blog.__dict__, cls=DateTimeEncoder) for blog in Blog.objects.all().filter(blog_user=user)]
 
 
+@jsonrpc_method('getPublishedBlogs')
+def getPublishedBlogs(request, username):
+    user = User.objects.filter(username=username)
+    return [json.dumps(blog.__dict__, cls=DateTimeEncoder) for blog in Blog.objects.all().filter(blog_user=user, is_published=True)]
+
+@jsonrpc_method('getUnPublishedBlogs')
+def getUnPublishedBlogs(request, username):
+    user = User.objects.filter(username=username)
+    return [json.dumps(blog.__dict__, cls=DateTimeEncoder) for blog in Blog.objects.all().filter(blog_user=user, is_published=False)]
+
+@jsonrpc_method('getOthersPublishedBlogs')
+def getOthersPublishedBlogs(request, username):
+    user = User.objects.filter(username=username)
+    return [json.dumps(blog.__dict__, cls=DateTimeEncoder) for blog in Blog.objects.all().exclude(blog_user= user).filter(is_published=False)]
+
+@jsonrpc_method('getAllUnpublishedBlogs')
+def getAllUnpublishedBlogs(request):
+    return [json.dumps(blog.__dict__, default=str) for blog in Blog.objects.all().filter(is_published=False)]
+
 @jsonrpc_method('getAllPublishedBlogs')
 def getAllPublishedBlogs(request):
-#     return [json.dumps(blog.__dict__, default=str) for blog in Blog.objects.all()]
-    return [json.dumps(blog.__dict__, cls=DateTimeEncoder) for blog in Blog.objects.all().filter(is_published=True)]
-
-@jsonrpc_method('getAllUnPublishedBlogs')
-def getAllUnPublishedBlogs(request):
-    return [json.dumps(blog.__dict__, default=str) for blog in Blog.objects.all().filter(is_published=False)]
+    return [json.dumps(blog.__dict__, default=str) for blog in Blog.objects.all().filter(is_published=True)]
 
 @jsonrpc_method('publishBlog')
 def publishBlog(request, blogId):
